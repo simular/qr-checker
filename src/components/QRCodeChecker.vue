@@ -10,11 +10,13 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { Html5Qrcode } from "html5-qrcode";
-import { computed, nextTick, ref } from 'vue';
+import { computed, nextTick, onUnmounted, ref } from 'vue';
 import { useToast } from 'vue-toast-notification';
 
 const $toast = useToast();
 const result = ref<string>();
+
+const isMac = navigator.userAgent.includes('Mac OS X');
 
 function browseFiles() {
   const input = document.createElement('input');
@@ -145,7 +147,18 @@ function getHtmlQrCode(id = 'reader', verbose = false) {
 const displayImage = ref('https://place-hold.it/150x150?text=QRCode');
 
 async function handleQRCodeImage(file: File) {
-  result.value = await getHtmlQrCode().scanFile(file);
+  if (!file.type.startsWith('image/')) {
+    $toast.error('無法分析 QR Code');
+    return;
+  }
+  
+  try {
+    result.value = await getHtmlQrCode().scanFile(file);
+  } catch (e) {
+    $toast.error('無法分析 QR Code');
+
+    throw e;
+  }
 
   displayImage.value = URL.createObjectURL(file);
 }
@@ -171,6 +184,24 @@ function goToResult() {
     window.open(result.value);
   }
 }
+
+document.addEventListener('paste', systemPaste)
+
+function systemPaste(e: ClipboardEvent) {
+  const files = e.clipboardData?.files;
+  
+  const file = files?.[0];
+
+  if (!file) {
+    return;
+  }
+
+  handleQRCodeImage(file);
+}
+
+onUnmounted(() => {
+  document.removeEventListener('paste', systemPaste);
+})
 </script>
 
 <template>
@@ -215,8 +246,8 @@ function goToResult() {
           <template v-else>
             <div class="position-relative">
               <div id="scanner" height="400px"></div>
-              <div class="text-center position-absolute" style="bottom: 15px; left: 50%; transform: translateX(-50%)">
-                <button type="button" class="btn btn-light"
+              <div class="text-center l-stop-actions ">
+                <button type="button" class="btn btn-secondary"
                   @click="stopScan">
                   停止掃描
                 </button>
@@ -228,19 +259,27 @@ function goToResult() {
         <div class="col-lg-6">
           <div class="px-4 py-4 d-flex flex-column gap-4 h-100">
             <div>
-              <h2 class=" fw-bold text-body-emphasis">QRCode 掃描與安全檢查工具</h2>
+              <h2 class=" fw-bold text-body-emphasis mb-3">QRCode 掃描與安全檢查工具</h2>
               <div class="">
                 <p class="lead">
                   上傳或貼上您的 QRCode，立即檢查網址是否安全
+                </p>
+                <p class="">
+                  可以用
+                  <kbd v-if="isMac">Command</kbd>
+                  <kbd v-else>Ctrl</kbd>
+                  +
+                  <kbd>V</kbd>
+                  貼上圖片檔案
                 </p>
               </div>
             </div>
 
             <div class="card mt-auto">
-              <div class="card-body d-flex gap-3">
+              <div class="card-body d-flex flex-column flex-md-row gap-3">
                 <div>
                   <img ref="uploadedQrcode" :src="displayImage"
-                    class="rounded"
+                    class="rounded d-block mx-auto"
                     alt="qrcode" style="width: 100px">
                 </div>
 
@@ -295,5 +334,20 @@ function goToResult() {
 
 .l-dragarea--hover {
   background-color: var(--bs-gray-300);
+}
+
+.l-stop-actions {
+  position: static;
+  transform: none;
+  margin-top: 1rem;
+}
+
+@media (min-width: 991px) {
+  .l-stop-actions {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%)
+  }
 }
 </style>
