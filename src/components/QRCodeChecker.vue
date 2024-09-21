@@ -108,7 +108,7 @@ async function startScan() {
   scanner = getHtmlQrCode('scanner');
 
   scanner.start(
-    cameraId,
+    { facingMode: 'environment' },
     {
       fps: 10,
       qrbox: { width: 250, height: 250 },
