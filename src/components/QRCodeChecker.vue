@@ -103,8 +103,6 @@ async function startScan() {
     return;
   }
 
-  const cameraId = devices[0].id;
-
   scanner = getHtmlQrCode('scanner');
 
   scanner.start(
