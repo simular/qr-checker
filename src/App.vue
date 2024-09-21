@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import QRCodeChecker from '@/components/QRCodeChecker.vue';
 import Header from '@/layout/Header.vue';
+import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 </script>
 
 <template>
@@ -9,6 +11,16 @@ import Header from '@/layout/Header.vue';
 
     <div class="container">
       <QRCodeChecker />
+    </div>
+
+    <hr />
+    <div class="container py-3 text-center">
+      QR Code 掃描與檢查 - Made with
+      <FontAwesomeIcon :icon="faHeart" style="color: var(--bs-pink)" />
+      by
+      <a href="https://simular.co" target="_blank">
+        夏木樂
+      </a>
     </div>
   </main>
 </template>

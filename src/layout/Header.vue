@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import logo from '@/assets/logo-w-h.svg';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 </script>
 
 <template>
@@ -22,10 +24,13 @@ import logo from '@/assets/logo-w-h.svg';
 <!--        </ul>-->
 
         <div class="text-end ms-auto">
-          <a href="https://simular.co" target="_blank"
-            class="btn btn-outline-light me-2">
-            前往夏木樂
-          </a>
+          <div class="nav navbar-nav">
+            <a href="https://github.com/simular/qr-checker" target="_blank"
+              class="nav-item nav-link">
+              <FontAwesomeIcon :icon="faGithub" />
+              GitHub
+            </a>
+          </div>
         </div>
       </div>
     </div>
