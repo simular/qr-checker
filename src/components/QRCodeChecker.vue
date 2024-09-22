@@ -54,6 +54,13 @@ async function pasted() {
   types = types.slice().sort();
 
   const type = types[0];
+  
+  if (type === 'text/plain') {
+    const kbd = isMac ? 'Command + V' : 'Ctrl + V';
+
+    $toast.error(`無法貼上圖片檔案，如果您是複製電腦上的檔案，可以按下: ${kbd} 貼上`);
+    return;
+  }
 
   items[0].getType(type).then((blob) => {
     handleQRCodeImage(new File([blob], 'image.png', { type }));
@@ -187,10 +194,11 @@ document.addEventListener('paste', systemPaste)
 
 function systemPaste(e: ClipboardEvent) {
   const files = e.clipboardData?.files;
-  
+
   const file = files?.[0];
 
   if (!file) {
+    $toast.error('沒有檔案可以貼上');
     return;
   }
 
